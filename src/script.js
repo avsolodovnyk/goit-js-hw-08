@@ -2,7 +2,7 @@
 const refs = {
   markupPos: document.querySelector("ul.js-gallery"),
   backdropContent: document.querySelector("div.js-lightbox__content"),
-  exitModalButton: document.querySelector("button[data-action=close-lightbox]")
+  exitModalButton: document.querySelector("button[data-action=close-lightbox]"),
 };
 import galleryItems from "./gallery-items.js";
 refs.markupPos.insertAdjacentHTML(
@@ -12,6 +12,26 @@ refs.markupPos.insertAdjacentHTML(
 refs.markupPos.addEventListener("click", handleImageClick);
 refs.backdropContent.addEventListener("click", handleBackdropClick);
 refs.exitModalButton.addEventListener("click", closeModal);
+const images=document.querySelectorAll(".gallery__image");
+images.forEach(image=> lazyload(image));
+function lazyload(element) {
+const option={
+    rootMargin: "50px 0px",
+    threshold: 0.01
+};
+function onInteseptionImg(enties,observer){
+    enties.forEach(entry=>{
+        if(entry.isIntersecting){
+            const image=entry.target;
+            const imageUrl=image.dataset.lazy;
+            image.setAttribute("src",imageUrl);
+            observer.disconnect();
+        }
+})
+}
+const io=new IntersectionObserver(onInteseptionImg,option);
+io.observe(element);
+}
 function handleImageClick(event) {
   if (
     event.target.parentNode === event.currentTarget ||
@@ -62,7 +82,7 @@ function createGalleryMarkup(galleryItems) {
     .map(
       item => `<li class="gallery__item">
   <a href=${item.original} class="gallery__link">
-  <img class="gallery__image" src=${item.preview} data-source=${
+  <img class="gallery__image" src="#" data-lazy=${item.preview} data-source=${
         item.original
       } alt=${item.description}>
   <span class="gallery__icon">
